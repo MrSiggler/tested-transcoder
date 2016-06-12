@@ -37,7 +37,7 @@ class Transcoder(object):
     # directory contained the compressed outputs
     OUTPUT_DIRECTORY = TRANSCODER_ROOT + '/output'
     # standard options for the transcode-video script
-    TRANSCODE_OPTIONS = '--mkv --slow --allow-dts --allow-ac3 --copy-all-ac3 --single --no-auto-burn'
+    TRANSCODE_OPTIONS = '--preset medium --no-auto-burn'
     # number of seconds a file must remain unmodified in the INPUT_DIRECTORY
     # before it is considered done copying. increase this value for more
     # tolerance on bad network connections.
@@ -225,7 +225,7 @@ class Transcoder(object):
         crop_re = r'[0-9]+:[0-9]+:[0-9]+:[0-9]+'
         name = os.path.basename(path)
         self.logger.info('Detecting crop for input "%s"', name)
-        command = 'detect-crop.sh --values-only "%s"' % path
+        command = 'detect-crop --values-only "%s"' % path
         try:
             out = self.execute(command)
         except subprocess.CalledProcessError as ex:
@@ -265,7 +265,7 @@ class Transcoder(object):
                 os.unlink(workpath)
 
         command_parts = [
-            'transcode-video.sh',
+            'transcode-video',
             '--crop %s' % crop,
             self.parse_audio_tracks(meta),
             self.parse_subtitle_tracks(meta),
@@ -341,7 +341,7 @@ class Transcoder(object):
             title = title.replace('"', '')
             self.logger.info('Adding audio track #%s with title: %s',
                              track['number'], title)
-            additional_tracks.append('--add-audio %s,"%s"' % (
+            additional_tracks.append('--add-audio %s="%s"' % (
                 track['number'], title.replace('"', '')))
 
         return ' '.join(additional_tracks)
@@ -350,3 +350,4 @@ class Transcoder(object):
 if __name__ == '__main__':
     transcoder = Transcoder()
     transcoder.run()
+	
